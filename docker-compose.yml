@@ -1,0 +1,51 @@
+version: "3.7"
+
+services:
+
+  web:
+    build: ./web
+    container_name: web
+    restart: always
+    environment:
+      - APP_NAME=FlaskApp
+      - SECRET_KEY=ihgfhg39q4yt934yhsjkhf
+      - PYTHONUNBUFFERED=1
+      - DEBUG=0
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/site_db
+    expose:
+      - 8080
+    networks:
+      - flask-network
+    depends_on:
+      - db
+     
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    restart: always
+    ports:
+      - "80:80"
+    networks:
+      - flask-network
+
+  db:
+    image: postgres:latest
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=site_db
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - flask-network
+    expose:
+      - 5432
+
+networks:
+  flask-network:
+
+volumes:
+  db_data:
